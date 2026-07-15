@@ -1,0 +1,238 @@
+/* ============================================================
+   Relay — design tokens
+
+   Direction: emergency field-comms, not a chat-app clone. Deep
+   charcoal-green base (not pure black — reads like the inside of
+   a radio housing, not "dark mode default"). Amber is the working
+   accent (dial light, warning label). Teal is reserved for mesh /
+   connectivity states. Red is reserved *only* for the emergency
+   broadcast channel so it keeps its alarm value.
+
+   Fonts are system-stack only, deliberately — the brief requires
+   zero external calls at runtime, so nothing here is fetched from
+   a font CDN. Condensed/technical feel comes from letter-spacing
+   and uppercase treatment on system sans, not a fetched face.
+   ============================================================ */
+
+:root {
+  --bg: #0a0e17;
+  --bg-raised: #101622;
+  --bg-panel: #131b28;
+  --border: #222f44;
+  --border-soft: #1c2637;
+
+  --text: #f1f5f9;
+  --text-dim: #94a3b8;
+  --text-faint: #475569;
+
+  --amber: #f5a623;
+  --amber-dim: #d98216;
+  --teal: #22d3ee;
+  --teal-dim: #0891b2;
+  --red: #ef4444;
+  --red-dim: #991b1b;
+  --green: #10b981;
+  --violet: #8b5cf6;
+  --violet-dim: #6d28d9;
+
+  --font-display: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  --radius: 4px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Elevated Glows and Effects */
+  --glow-amber: 0 0 10px rgba(245, 166, 35, 0.45);
+  --glow-teal: 0 0 10px rgba(34, 211, 238, 0.5);
+  --glow-red: 0 0 12px rgba(239, 68, 68, 0.5);
+  --glow-green: 0 0 10px rgba(16, 185, 129, 0.45);
+  --glow-violet: 0 0 12px rgba(139, 92, 246, 0.55);
+  --noise-opacity: 0.04;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(139, 92, 246, 0.06), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(34, 211, 238, 0.06), transparent 45%);
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--amber-dim);
+  color: var(--bg);
+}
+
+/* Utility: field-label treatment used for section eyebrows/headers
+   throughout — this is the app's one recurring typographic signature. */
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* scrollbars — thin, thematic, not default chrome grey */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--amber-dim);
+}
+
+/* CRT Screen Effect Overlay */
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  background: 
+    radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.45) 150%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.12) 1px, transparent 1px, transparent 3px);
+  opacity: 0.85;
+}
+
+/* Mechanical text-blinking cursor */
+.terminal-cursor::after {
+  content: "█";
+  margin-left: 4px;
+  color: var(--amber);
+  animation: cursor-blink 1s steps(2, start) infinite;
+}
+
+@keyframes cursor-blink {
+  to { visibility: hidden; }
+}
+
+/* Custom interactive active states */
+.active-amber {
+  box-shadow: var(--glow-amber);
+  border-color: var(--amber) !important;
+}
+
+.active-teal {
+  box-shadow: var(--glow-teal);
+  border-color: var(--teal) !important;
+}
+
+.active-violet {
+  box-shadow: var(--glow-violet);
+  border-color: var(--violet) !important;
+}
+
+/* Micro-animations */
+@keyframes pulse-glow-teal {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(79, 209, 197, 0.2);
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(79, 209, 197, 0.6);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow-amber {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(242, 169, 60, 0.2);
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(242, 169, 60, 0.6);
+    opacity: 1;
+  }
+}
+
+@keyframes flicker-signal {
+  0%, 100% { opacity: 1; }
+  45% { opacity: 1; }
+  46% { opacity: 0.5; }
+  47% { opacity: 0.8; }
+  48% { opacity: 0.3; }
+  49% { opacity: 1; }
+  93% { opacity: 1; }
+  94% { opacity: 0.2; }
+  95% { opacity: 0.9; }
+}
+
+.flicker {
+  animation: flicker-signal 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-overlay,
+  .terminal-cursor::after,
+  .flicker {
+    animation: none !important;
+  }
+}
+
