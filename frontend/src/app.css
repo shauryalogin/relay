@@ -783,87 +783,142 @@
 
 .broadcast-trigger {
   position: fixed;
-  right: var(--space-5);
+  left: var(--space-5);
   bottom: var(--space-5);
   z-index: 30;
-  background: var(--red);
-  color: #2a0304;
-  border: none;
-  border-radius: 999px;
-  padding: 13px 20px;
-  font-weight: 700;
-  font-size: 14px;
+  background: rgba(10,14,23,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--red);
+  border: 1px solid rgba(229, 72, 77, 0.3);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 18px rgba(229, 72, 77, 0.35);
+  justify-content: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(229, 72, 77, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.broadcast-trigger:hover {
+  background: rgba(229, 72, 77, 0.15);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 12px rgba(229, 72, 77, 0.4);
 }
 
 .broadcast-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(4, 6, 10, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 9999;
   padding: var(--space-4);
 }
 
 .broadcast-modal {
   width: 100%;
-  max-width: 420px;
-  background: var(--bg-panel);
-  border: 1px solid var(--red-dim);
-  border-radius: 6px;
-  padding: var(--space-5);
+  max-width: 440px;
+  background: rgba(15, 20, 32, 0.95);
+  border: 1px solid rgba(229, 72, 77, 0.35);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(229, 72, 77, 0.15);
+  color: var(--text);
+  font-family: var(--font-mono), monospace;
 }
 
 .broadcast-modal-title {
   margin: var(--space-1) 0 var(--space-3);
-  font-family: var(--font-display);
-  color: var(--red);
+  font-family: var(--font-display), monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  text-transform: uppercase;
 }
 
 .broadcast-textarea {
   width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  font-size: 15px;
-  resize: vertical;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(229, 72, 77, 0.2);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  font-family: var(--font-mono), monospace;
+  resize: none;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.broadcast-textarea:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 10px rgba(229, 72, 77, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.broadcast-textarea::placeholder {
+  color: var(--text-faint);
+  font-size: 13px;
 }
 
 .broadcast-modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-2);
+  gap: 12px;
   margin-top: var(--space-4);
 }
 
 .broadcast-cancel {
-  background: none;
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-dim);
-  border-radius: var(--radius);
-  padding: 10px 16px;
-  min-height: 44px;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.broadcast-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text);
 }
 
 .broadcast-confirm {
   background: var(--red);
-  color: #2a0304;
+  color: #fff;
   border: none;
-  border-radius: var(--radius);
-  padding: 10px 16px;
-  min-height: 44px;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 10px rgba(229, 72, 77, 0.25);
+}
+
+.broadcast-confirm:hover:not(:disabled) {
+  background: #f05a60;
+  box-shadow: 0 4px 15px rgba(229, 72, 77, 0.4);
 }
 
 .broadcast-confirm:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ============================================================

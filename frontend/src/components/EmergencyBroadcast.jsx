@@ -100,7 +100,7 @@ export function BroadcastComposer({ onSend }) {
     <>
       <button className="broadcast-trigger" onClick={handleTriggerClick}>
         <IconAlertTriangle size={16} aria-hidden="true" />
-        Emergency broadcast
+
       </button>
 
       {open && (
