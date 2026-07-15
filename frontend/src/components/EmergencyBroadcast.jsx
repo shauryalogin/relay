@@ -4,6 +4,7 @@ import {
   IconAlertTriangle,
   IconAlertOctagon,
 } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "motion/react";
 
 function formatTime(ts) {
   if (!ts) return "";
@@ -100,37 +101,54 @@ export function BroadcastComposer({ onSend }) {
     <>
       <button className="broadcast-trigger" onClick={handleTriggerClick}>
         <IconAlertTriangle size={16} aria-hidden="true" />
-
       </button>
 
-      {open && (
-        <div className="broadcast-modal-backdrop" role="dialog" aria-modal="true" aria-label="Send emergency broadcast">
-          <form className="broadcast-modal active-red" onSubmit={handleSend}>
-            <div className="field-label" style={{ color: "var(--red)", display: "flex", alignItems: "center", gap: "6px" }}>
-              <IconAlertTriangle size={14} />
-              EMERGENCY TRANSMITTER WARNING
-            </div>
-            <h3 className="broadcast-modal-title">Broadcast message to all nodes</h3>
-            <textarea
-              className="broadcast-textarea"
-              autoFocus
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Enter critical instructions (e.g. muster points, safety updates)..."
-              maxLength={280}
-              rows={3}
-            />
-            <div className="broadcast-modal-actions">
-              <button type="button" className="broadcast-cancel" onClick={handleCancelClick}>
-                Cancel
-              </button>
-              <button type="submit" className="broadcast-confirm" disabled={!text.trim()}>
-                SEND BROADCAST
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="broadcast-modal-backdrop"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Send emergency broadcast"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <motion.form
+              className="broadcast-modal active-red"
+              onSubmit={handleSend}
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ type: "spring", duration: 0.3 }}
+            >
+              <div className="field-label" style={{ color: "var(--red)", display: "flex", alignItems: "center", gap: "6px" }}>
+                <IconAlertTriangle size={14} />
+                EMERGENCY TRANSMITTER WARNING
+              </div>
+              <h3 className="broadcast-modal-title">Broadcast message to all nodes</h3>
+              <textarea
+                className="broadcast-textarea"
+                autoFocus
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Enter critical instructions (e.g. muster points, safety updates)..."
+                maxLength={280}
+                rows={3}
+              />
+              <div className="broadcast-modal-actions">
+                <button type="button" className="broadcast-cancel" onClick={handleCancelClick}>
+                  Cancel
+                </button>
+                <button type="submit" className="broadcast-confirm" disabled={!text.trim()}>
+                  SEND BROADCAST
+                </button>
+              </div>
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
