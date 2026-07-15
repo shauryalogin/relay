@@ -236,3 +236,113 @@ a:focus-visible {
   }
 }
 
+/* ============================================================
+   Tailwind CSS Fallback Layout Utilities for Navbar & Dock
+   ============================================================ */
+.fixed { position: fixed !important; }
+.absolute { position: absolute !important; }
+.relative { position: relative !important; }
+.sticky { position: sticky !important; }
+.inset-0 { top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important; }
+.inset-x-0 { left: 0 !important; right: 0 !important; }
+.top-0 { top: 0 !important; }
+.top-20 { top: 20px !important; }
+.z-20 { z-index: 20 !important; }
+.z-40 { z-index: 40 !important; }
+.z-50 { z-index: 50 !important; }
+.z-\[60\] { z-index: 60 !important; }
+.w-full { width: 100% !important; }
+.h-full { height: 100% !important; }
+.h-4 { height: 16px !important; }
+.w-4 { width: 16px !important; }
+.h-10 { height: 40px !important; }
+.w-10 { width: 40px !important; }
+.h-12 { height: 48px !important; }
+.w-12 { width: 48px !important; }
+.h-16 { height: 64px !important; }
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+.mr-4 { margin-right: 16px !important; }
+.ml-3 { margin-left: 12px !important; }
+.mt-14 { margin-top: 56px !important; }
+.mb-2 { margin-bottom: 8px !important; }
+.left-1\/2 { left: 50% !important; }
+.-translate-x-1\/2 { transform: translateX(-50%) !important; }
+.translate-y-20 { transform: translateY(80px) !important; }
+
+/* Display & Flexbox */
+.flex { display: flex !important; }
+.inline-flex { display: inline-flex !important; }
+.hidden { display: none !important; }
+.flex-row { flex-direction: row !important; }
+.flex-col { flex-direction: column !important; }
+.flex-col-reverse { flex-direction: column-reverse !important; }
+.flex-1 { flex: 1 1 0% !important; }
+.items-center { align-items: center !important; }
+.items-start { align-items: flex-start !important; }
+.items-end { align-items: flex-end !important; }
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.justify-start { justify-content: flex-start !important; }
+.self-start { align-self: flex-start !important; }
+
+/* Padding, Gaps & Spacing */
+.gap-2 { gap: 8px !important; }
+.gap-3 { gap: 12px !important; }
+.gap-4 { gap: 16px !important; }
+.space-x-1 > * + * { margin-left: 4px !important; }
+.space-x-2 > * + * { margin-left: 8px !important; }
+.space-y-2 > * + * { margin-top: 8px !important; }
+.px-0 { padding-left: 0 !important; padding-right: 0 !important; }
+.px-2 { padding-left: 8px !important; padding-right: 8px !important; }
+.px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+.px-6 { padding-left: 24px !important; padding-right: 24px !important; }
+.py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
+.py-1\.5 { padding-top: 6px !important; padding-bottom: 6px !important; }
+.py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+.py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
+.py-6 { padding-top: 24px !important; padding-bottom: 24px !important; }
+.py-8 { padding-top: 32px !important; padding-bottom: 32px !important; }
+.pb-3 { padding-bottom: 12px !important; }
+
+/* Borders & Rounding */
+.rounded-full { border-radius: 9999px !important; }
+.rounded-2xl { border-radius: 16px !important; }
+.rounded-lg { border-radius: 8px !important; }
+.rounded-md { border-radius: 6px !important; }
+.border { border: 1px solid var(--border) !important; }
+
+/* Typography & Interactive */
+.cursor-pointer { cursor: pointer !important; }
+.select-none { user-select: none !important; }
+.text-xs { font-size: 12px !important; }
+.text-sm { font-size: 14px !important; }
+.font-mono { font-family: var(--font-mono) !important; }
+.font-bold { font-weight: 700 !important; }
+.font-medium { font-weight: 500 !important; }
+.font-normal { font-weight: 400 !important; }
+.font-black { font-weight: 900 !important; }
+.tracking-widest { letter-spacing: 0.15em !important; }
+.aspect-square { aspect-ratio: 1 / 1 !important; }
+
+/* Responsive Media Queries */
+@media (min-width: 1024px) {
+  .lg\:flex { display: flex !important; }
+  .lg\:hidden { display: none !important; }
+}
+
+@media (max-width: 1023px) {
+  .lg\:flex { display: none !important; }
+  .lg\:hidden { display: flex !important; }
+}
+
+@media (min-width: 768px) {
+  .md\:flex { display: flex !important; }
+  .md\:hidden { display: none !important; }
+}
+
+@media (max-width: 767px) {
+  .md\:flex { display: none !important; }
+  .md\:hidden { display: flex !important; }
+}
+
+

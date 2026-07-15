@@ -1,11 +1,9 @@
 "use client";
 /**
  * FloatingDock — vertical variant for Relay's left-side navigation.
- * Renders as a vertical pill on desktop, floating bottom-right FAB on mobile.
+ * Uses inline styles to render reliably without Tailwind CSS preflight setup.
  */
 
-import { cn } from "@/lib/utils";
-import { IconLayoutNavbarCollapse } from "@tabler/icons-react";
 import {
   AnimatePresence,
   MotionValue,
@@ -53,15 +51,27 @@ const FloatingDockMobile = ({
   const [open, setOpen] = useState(false);
   return (
     <div
-      className={cn(
-        "fixed bottom-20 right-4 z-50 flex flex-col-reverse items-end gap-2 md:hidden",
-        className
-      )}
+      className={`relay-dock-mobile ${className || ""}`}
+      style={{
+        position: "fixed",
+        bottom: "24px",
+        right: "24px",
+        zIndex: 99,
+        display: "flex",
+        flexDirection: "column-reverse",
+        alignItems: "end",
+        gap: "8px",
+      }}
     >
       <AnimatePresence>
         {open && (
           <motion.div
-            className="flex flex-col-reverse gap-2 mb-2"
+            style={{
+              display: "flex",
+              flexDirection: "column-reverse",
+              gap: "8px",
+              marginBottom: "8px",
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -82,17 +92,33 @@ const FloatingDockMobile = ({
       </AnimatePresence>
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-12 w-12 items-center justify-center rounded-full"
         style={{
+          display: "flex",
+          height: "48px",
+          width: "48px",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
           background: "var(--bg-panel)",
           border: "1px solid var(--border)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.6)",
+          cursor: "pointer",
+          color: "var(--text-dim)",
+          padding: 0,
         }}
       >
-        <IconLayoutNavbarCollapse
-          size={22}
-          style={{ color: "var(--text-dim)" }}
-        />
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
       </button>
     </div>
   );
@@ -111,15 +137,23 @@ const FloatingDockDesktop = ({
     <motion.div
       onMouseMove={(e) => mouseY.set(e.pageY)}
       onMouseLeave={() => mouseY.set(Infinity)}
-      className={cn(
-        "fixed left-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col items-center gap-3 rounded-2xl px-2 py-3",
-        className
-      )}
+      className={`relay-dock-desktop ${className || ""}`}
       style={{
-        background: "rgba(16,22,34,0.85)",
+        position: "fixed",
+        left: "14px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 99,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "12px",
+        borderRadius: "16px",
+        padding: "16px 8px",
+        background: "rgba(16, 22, 34, 0.9)",
         backdropFilter: "blur(12px)",
-        border: "1px solid rgba(34,211,238,0.12)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,211,238,0.06)",
+        border: "1px solid rgba(34, 211, 238, 0.15)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(34, 211, 238, 0.06)",
       }}
     >
       {items.map((item) => (
@@ -148,9 +182,9 @@ function DockItemButton({
       style={{
         width: size,
         height: size,
-        background: item.active ? "rgba(34,211,238,0.15)" : "var(--bg-panel)",
-        border: `1px solid ${item.active ? "rgba(34,211,238,0.4)" : "var(--border)"}`,
-        boxShadow: item.active ? "var(--glow-teal)" : "none",
+        background: item.active ? "rgba(34,211,238,0.15)" : "rgba(255,255,255,0.04)",
+        border: `1px solid ${item.active ? "rgba(34,211,238,0.5)" : "rgba(255,255,255,0.07)"}`,
+        boxShadow: item.active ? "0 0 10px rgba(34,211,238,0.3)" : "none",
         borderRadius: "50%",
         display: "flex",
         alignItems: "center",
@@ -158,9 +192,12 @@ function DockItemButton({
         cursor: "pointer",
         color: item.active ? "var(--teal)" : "var(--text-dim)",
         flexShrink: 0,
+        padding: 0,
       }}
     >
-      <div style={{ width: iconSize, height: iconSize }}>{item.icon}</div>
+      <div style={{ width: iconSize, height: iconSize, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {item.icon}
+      </div>
     </Tag>
   );
 }
@@ -193,25 +230,39 @@ function IconContainer({
   const Tag = href ? "a" : "button";
 
   return (
-    <Tag href={href} onClick={onClick}>
+    <Tag
+      href={href}
+      onClick={onClick}
+      style={{
+        background: "none",
+        border: "none",
+        padding: 0,
+        margin: 0,
+        cursor: "pointer",
+        display: "block",
+        outline: "none",
+      }}
+    >
       <motion.div
         ref={ref}
-        style={{ width: size, height: size }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative flex items-center justify-center rounded-full cursor-pointer"
+        style={{
+          width: size,
+          height: size,
+          border: "1px solid",
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}
         animate={{
           background: active
             ? "rgba(34,211,238,0.15)"
             : "rgba(255,255,255,0.04)",
           borderColor: active ? "rgba(34,211,238,0.5)" : "rgba(255,255,255,0.07)",
           boxShadow: active ? "0 0 10px rgba(34,211,238,0.3)" : "none",
-        }}
-        style={{
-          width: size,
-          height: size,
-          border: "1px solid",
-          borderRadius: "50%",
         }}
       >
         {/* Tooltip */}
@@ -223,10 +274,20 @@ function IconContainer({
               exit={{ opacity: 0, x: -4 }}
               className="absolute left-full ml-3 whitespace-pre rounded-md px-2 py-1 text-xs font-mono tracking-widest pointer-events-none"
               style={{
+                position: "absolute",
+                left: "100%",
+                marginLeft: "12px",
+                whiteSpace: "pre",
+                borderRadius: "6px",
+                padding: "6px 10px",
+                fontSize: "10px",
+                fontFamily: "var(--font-mono)",
+                letterSpacing: "0.08em",
                 background: "var(--bg-panel)",
                 border: "1px solid var(--border)",
                 color: active ? "var(--teal)" : "var(--text-dim)",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+                pointerEvents: "none",
               }}
             >
               {title}
@@ -237,8 +298,22 @@ function IconContainer({
         {/* Badge */}
         {badge != null && badge > 0 && (
           <span
-            className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold"
-            style={{ background: "var(--teal)", color: "var(--bg)" }}
+            style={{
+              position: "absolute",
+              top: "-2px",
+              right: "-2px",
+              display: "flex",
+              height: "16px",
+              width: "16px",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "50%",
+              fontSize: "8px",
+              fontFamily: "var(--font-mono)",
+              fontWeight: "bold",
+              background: "var(--teal)",
+              color: "var(--bg)",
+            }}
           >
             {badge > 9 ? "9+" : badge}
           </span>
@@ -250,8 +325,10 @@ function IconContainer({
             width: iconSize,
             height: iconSize,
             color: active ? "var(--teal)" : "var(--text-dim)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          className="flex items-center justify-center"
         >
           {icon}
         </motion.div>

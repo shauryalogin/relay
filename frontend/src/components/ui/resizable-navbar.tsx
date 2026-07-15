@@ -1,6 +1,4 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { IconMenu2, IconX } from "@tabler/icons-react";
 import {
   motion,
   AnimatePresence,
@@ -9,52 +7,13 @@ import {
 } from "motion/react";
 import React, { useRef, useState } from "react";
 
-interface NavbarProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-interface NavBodyProps {
-  children: React.ReactNode;
-  className?: string;
-  visible?: boolean;
-}
-
-interface NavItemsProps {
-  items: {
-    name: string;
-    link: string;
-    onClick?: () => void;
-    active?: boolean;
-  }[];
-  className?: string;
-}
-
-interface MobileNavProps {
-  children: React.ReactNode;
-  className?: string;
-  visible?: boolean;
-}
-
-interface MobileNavHeaderProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-interface MobileNavMenuProps {
-  children: React.ReactNode;
-  className?: string;
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const Navbar = ({ children, className }: NavbarProps) => {
-  const ref = useRef<HTMLDivElement>(null);
+export const Navbar = ({ children, className }) => {
+  const ref = useRef(null);
   const { scrollY } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
   });
-  const [visible, setVisible] = useState<boolean>(false);
+  const [visible, setVisible] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setVisible(latest > 40);
@@ -63,138 +22,173 @@ export const Navbar = ({ children, className }: NavbarProps) => {
   return (
     <motion.div
       ref={ref}
-      className={cn("fixed inset-x-0 top-0 z-50 w-full", className)}
+      className={className}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        width: "100%",
+      }}
     >
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
-          ? React.cloneElement(
-              child as React.ReactElement<{ visible?: boolean }>,
-              { visible }
-            )
+          ? React.cloneElement(child, { visible })
           : child
       )}
     </motion.div>
   );
 };
 
-export const NavBody = ({ children, className, visible }: NavBodyProps) => {
+export const NavBody = ({ children, visible, className }) => {
   return (
     <motion.div
       animate={{
         backdropFilter: visible ? "blur(16px)" : "none",
         boxShadow: visible
           ? "0 0 0 1px rgba(34,211,238,0.15), 0 8px 32px rgba(0,0,0,0.4)"
-          : "none",
-        background: visible
-          ? "rgba(10,14,23,0.88)"
-          : "transparent",
-        width: visible ? "92%" : "100%",
-        y: visible ? 8 : 0,
+          : "0 1px 0 rgba(34,211,238,0.08)",
+        background: visible ? "rgba(10,14,23,0.92)" : "rgba(10,14,23,0.85)",
         borderRadius: visible ? "12px" : "0px",
       }}
       transition={{ type: "spring", stiffness: 220, damping: 50 }}
-      style={{ minWidth: "600px" }}
-      className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start px-6 py-3 lg:flex",
-        !visible && "border-b border-[rgba(34,211,238,0.08)]",
-        className
-      )}
+      style={{
+        position: "relative",
+        zIndex: 60,
+        margin: visible ? "8px auto 0" : "0 auto",
+        width: visible ? "92%" : "100%",
+        maxWidth: "1400px",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "10px 24px",
+      }}
+      className={`relay-nav-desktop ${className || ""}`}
     >
       {children}
     </motion.div>
   );
 };
 
-export const NavItems = ({ items, className }: NavItemsProps) => {
-  const [hovered, setHovered] = useState<number | null>(null);
+export const NavItems = ({ items }) => {
+  const [hovered, setHovered] = useState(null);
 
   return (
-    <motion.div
+    <div
       onMouseLeave={() => setHovered(null)}
-      className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-1 lg:flex",
-        className
-      )}
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "4px",
+        pointerEvents: "none",
+      }}
     >
       {items.map((item, idx) => (
         <a
-          key={`link-${idx}`}
+          key={`nav-${idx}`}
           href={item.link}
           onClick={item.onClick}
           onMouseEnter={() => setHovered(idx)}
-          className={cn(
-            "relative px-4 py-2 text-sm font-medium font-mono tracking-widest transition-colors duration-150",
-            item.active
-              ? "text-[var(--teal)]"
-              : "text-[var(--text-dim)] hover:text-[var(--text)]"
-          )}
+          style={{
+            position: "relative",
+            padding: "8px 16px",
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "0.14em",
+            color: item.active ? "var(--teal)" : "var(--text-dim)",
+            textDecoration: "none",
+            pointerEvents: "auto",
+            transition: "color 0.15s ease",
+            cursor: "pointer",
+          }}
         >
           {hovered === idx && (
             <motion.div
               layoutId="relay-nav-hover"
-              className="absolute inset-0 h-full w-full rounded-md bg-[rgba(34,211,238,0.07)] border border-[rgba(34,211,238,0.15)]"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                borderRadius: "6px",
+                background: "rgba(34,211,238,0.07)",
+                border: "1px solid rgba(34,211,238,0.15)",
+              }}
             />
           )}
           {item.active && (
             <motion.div
               layoutId="relay-nav-active"
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-[var(--teal)]"
-              style={{ boxShadow: "0 0 6px var(--teal)" }}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                height: "2px",
+                width: "16px",
+                borderRadius: "999px",
+                background: "var(--teal)",
+                boxShadow: "0 0 8px var(--teal)",
+              }}
             />
           )}
-          <span className="relative z-20">{item.name}</span>
+          <span style={{ position: "relative", zIndex: 2 }}>{item.name}</span>
         </a>
       ))}
-    </motion.div>
+    </div>
   );
 };
 
-export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
+export const MobileNav = ({ children, visible, className }) => {
   return (
     <motion.div
       animate={{
         backdropFilter: visible ? "blur(16px)" : "none",
-        background: visible ? "rgba(10,14,23,0.9)" : "rgba(10,14,23,0.7)",
+        background: visible ? "rgba(10,14,23,0.92)" : "rgba(10,14,23,0.85)",
         boxShadow: visible
           ? "0 0 0 1px rgba(34,211,238,0.15), 0 8px 32px rgba(0,0,0,0.4)"
-          : "none",
+          : "0 1px 0 rgba(34,211,238,0.08)",
         borderRadius: visible ? "8px" : "0px",
-        width: visible ? "calc(100% - 2rem)" : "100%",
-        y: visible ? 8 : 0,
       }}
       transition={{ type: "spring", stiffness: 220, damping: 50 }}
-      className={cn(
-        "relative z-50 mx-auto flex w-full flex-col items-center justify-between px-4 py-2 lg:hidden",
-        className
-      )}
+      style={{
+        position: "relative",
+        zIndex: 50,
+        margin: visible ? "8px auto 0" : "0 auto",
+        width: visible ? "calc(100% - 2rem)" : "100%",
+        display: "none",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "10px 16px",
+      }}
+      className={`relay-nav-mobile ${className || ""}`}
     >
       {children}
     </motion.div>
   );
 };
 
-export const MobileNavHeader = ({
-  children,
-  className,
-}: MobileNavHeaderProps) => {
+export const MobileNavHeader = ({ children }) => {
   return (
-    <div
-      className={cn(
-        "flex w-full flex-row items-center justify-between",
-        className
-      )}
-    >
+    <div style={{ display: "flex", width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
       {children}
     </div>
   );
 };
 
-export const MobileNavMenu = ({
-  children,
-  className,
-  isOpen,
-  onClose,
-}: MobileNavMenuProps) => {
+export const MobileNavMenu = ({ children, isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -202,10 +196,24 @@ export const MobileNavMenu = ({
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          className={cn(
-            "absolute inset-x-0 top-14 z-50 flex w-full flex-col items-start gap-3 rounded-lg border border-[rgba(34,211,238,0.15)] bg-[rgba(10,14,23,0.96)] px-4 py-6 shadow-2xl backdrop-blur-xl",
-            className
-          )}
+          style={{
+            position: "absolute",
+            top: "56px",
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            display: "flex",
+            width: "100%",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: "12px",
+            borderRadius: "8px",
+            border: "1px solid rgba(34,211,238,0.15)",
+            background: "rgba(10,14,23,0.97)",
+            padding: "20px 16px",
+            boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+            backdropFilter: "blur(20px)",
+          }}
         >
           {children}
         </motion.div>
@@ -214,124 +222,92 @@ export const MobileNavMenu = ({
   );
 };
 
-export const MobileNavToggle = ({
-  isOpen,
-  onClick,
-}: {
-  isOpen: boolean;
-  onClick: () => void;
-}) => {
-  return isOpen ? (
-    <IconX
-      className="text-[var(--teal)] cursor-pointer"
-      size={22}
+export const MobileNavToggle = ({ isOpen, onClick }) => {
+  return (
+    <button
       onClick={onClick}
-    />
-  ) : (
-    <IconMenu2
-      className="text-[var(--text-dim)] cursor-pointer"
-      size={22}
-      onClick={onClick}
-    />
+      style={{
+        background: "none",
+        border: "1px solid var(--border)",
+        borderRadius: "6px",
+        width: "36px",
+        height: "36px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        color: isOpen ? "var(--teal)" : "var(--text-dim)",
+      }}
+      aria-label={isOpen ? "Close menu" : "Open menu"}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        {isOpen ? (
+          <>
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </>
+        ) : (
+          <>
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </>
+        )}
+      </svg>
+    </button>
   );
 };
 
-export const NavbarLogo = ({
-  username,
-  connected,
-}: {
-  username?: string;
-  connected?: boolean;
-}) => {
+export const NavbarLogo = ({ username, connected }) => {
   return (
-    <a
-      href="#"
-      className="relative z-20 mr-4 flex items-center gap-3 px-2 py-1 select-none"
-    >
-      {/* Animated signal icon */}
+    <div style={{ position: "relative", zIndex: 20, display: "flex", alignItems: "center", gap: "10px", userSelect: "none" }}>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle
-          cx="12"
-          cy="12"
-          r="3"
-          fill="var(--violet)"
-          style={{ filter: "drop-shadow(0 0 4px var(--violet))" }}
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="7"
-          stroke="var(--violet)"
-          strokeWidth="1"
-          strokeOpacity="0.5"
-          fill="none"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="11"
-          stroke="var(--violet)"
-          strokeWidth="0.6"
-          strokeOpacity="0.2"
-          fill="none"
-        />
+        <circle cx="12" cy="12" r="3" fill="var(--violet)" style={{ filter: "drop-shadow(0 0 4px var(--violet))" }} />
+        <circle cx="12" cy="12" r="7" stroke="var(--violet)" strokeWidth="1" strokeOpacity="0.5" fill="none" />
+        <circle cx="12" cy="12" r="11" stroke="var(--violet)" strokeWidth="0.6" strokeOpacity="0.2" fill="none" />
       </svg>
-      <div className="flex flex-col leading-tight">
-        <span
-          className="font-black tracking-widest text-base"
-          style={{ color: "var(--violet)", textShadow: "var(--glow-violet)", fontFamily: "var(--font-display)" }}
-        >
+      <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+        <span style={{
+          fontFamily: "var(--font-display)", fontWeight: 900, letterSpacing: "0.16em",
+          fontSize: "15px", color: "var(--violet)", textShadow: "var(--glow-violet)",
+        }}>
           RELAY
         </span>
         {username && (
-          <span
-            className="text-[9px] tracking-widest font-mono"
-            style={{ color: "var(--text-faint)" }}
-          >
-            {connected ? "● " : "○ "}{username}
+          <span style={{ fontSize: "9px", letterSpacing: "0.14em", fontFamily: "var(--font-mono)", color: "var(--text-faint)" }}>
+            {connected ? "●" : "○"} {username}
           </span>
         )}
       </div>
-    </a>
+    </div>
   );
 };
 
-export const NavbarButton = ({
-  href,
-  as: Tag = "a",
-  children,
-  className,
-  variant = "primary",
-  ...props
-}: {
-  href?: string;
-  as?: React.ElementType;
-  children: React.ReactNode;
-  className?: string;
-  variant?: "primary" | "secondary" | "danger" | "ghost";
-} & (
-  | React.ComponentPropsWithoutRef<"a">
-  | React.ComponentPropsWithoutRef<"button">
-)) => {
+export const NavbarButton = ({ as: Tag = "button", children, variant = "primary", className, ...props }) => {
   const variants = {
-    primary:
-      "bg-[var(--teal)] text-[var(--bg)] font-bold shadow-[var(--glow-teal)] hover:opacity-90",
-    secondary:
-      "bg-transparent border border-[var(--border)] text-[var(--text-dim)] hover:border-[var(--teal)] hover:text-[var(--teal)]",
-    danger:
-      "bg-[var(--red)] text-white font-bold shadow-[var(--glow-red)] hover:opacity-90",
-    ghost:
-      "bg-transparent text-[var(--text-dim)] hover:text-[var(--teal)] hover:bg-[rgba(34,211,238,0.06)]",
+    primary: { background: "var(--teal)", color: "var(--bg)", fontWeight: "bold", boxShadow: "var(--glow-teal)" },
+    secondary: { background: "transparent", border: "1px solid var(--border)", color: "var(--text-dim)" },
+    danger: { background: "var(--red)", color: "white", fontWeight: "bold", boxShadow: "var(--glow-red)" },
+    ghost: { background: "transparent", color: "var(--text-dim)" },
   };
 
   return (
     <Tag
-      href={href || undefined}
-      className={cn(
-        "px-4 py-1.5 rounded-md text-xs font-mono tracking-widest cursor-pointer transition-all duration-150 inline-flex items-center gap-2",
-        variants[variant],
-        className
-      )}
+      className={className}
+      style={{
+        padding: "6px 14px",
+        borderRadius: "6px",
+        fontSize: "11px",
+        fontFamily: "var(--font-mono)",
+        letterSpacing: "0.1em",
+        cursor: "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        border: "none",
+        transition: "opacity 0.15s ease",
+        ...variants[variant],
+      }}
       {...props}
     >
       {children}
