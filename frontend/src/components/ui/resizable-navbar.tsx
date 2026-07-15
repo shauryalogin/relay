@@ -6,6 +6,15 @@ import {
   useMotionValueEvent,
 } from "motion/react";
 import React, { useRef, useState } from "react";
+import {
+  IconRadio,
+  IconActivity,
+  IconBell,
+  IconVolume,
+  IconVolumeOff,
+  IconSettings,
+} from "@tabler/icons-react";
+import { audioManager } from "../../utils/audio.js";
 
 export const Navbar = ({ children, className }) => {
   const ref = useRef(null);
@@ -30,13 +39,16 @@ export const Navbar = ({ children, className }) => {
         right: 0,
         zIndex: 100,
         width: "100%",
+        pointerEvents: "none", // Click-through to background main panel if clicking outside navbar
       }}
     >
-      {React.Children.map(children, (child) =>
-        React.isValidElement(child)
-          ? React.cloneElement(child, { visible })
-          : child
-      )}
+      <div style={{ pointerEvents: "auto" }}>
+        {React.Children.map(children, (child) =>
+          React.isValidElement(child)
+            ? React.cloneElement(child, { visible })
+            : child
+        )}
+      </div>
     </motion.div>
   );
 };
@@ -45,25 +57,26 @@ export const NavBody = ({ children, visible, className }) => {
   return (
     <motion.div
       animate={{
-        backdropFilter: visible ? "blur(16px)" : "none",
+        backdropFilter: "blur(16px)",
         boxShadow: visible
-          ? "0 0 0 1px rgba(34,211,238,0.15), 0 8px 32px rgba(0,0,0,0.4)"
-          : "0 1px 0 rgba(34,211,238,0.08)",
-        background: visible ? "rgba(10,14,23,0.92)" : "rgba(10,14,23,0.85)",
-        borderRadius: visible ? "12px" : "0px",
+          ? "0 0 0 1px rgba(34,211,238,0.15), 0 8px 32px rgba(0,0,0,0.5)"
+          : "0 0 0 1px rgba(34,211,238,0.1), 0 4px 20px rgba(0,0,0,0.3)",
+        background: visible ? "rgba(10,14,23,0.95)" : "rgba(10,14,23,0.85)",
+        borderRadius: "16px",
+        width: visible ? "90%" : "95%",
+        y: 12,
       }}
       transition={{ type: "spring", stiffness: 220, damping: 50 }}
       style={{
         position: "relative",
         zIndex: 60,
-        margin: visible ? "8px auto 0" : "0 auto",
-        width: visible ? "92%" : "100%",
+        margin: "0 auto",
         maxWidth: "1400px",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "10px 24px",
+        padding: "12px 24px",
       }}
       className={`relay-nav-desktop ${className || ""}`}
     >
@@ -154,19 +167,18 @@ export const MobileNav = ({ children, visible, className }) => {
   return (
     <motion.div
       animate={{
-        backdropFilter: visible ? "blur(16px)" : "none",
-        background: visible ? "rgba(10,14,23,0.92)" : "rgba(10,14,23,0.85)",
-        boxShadow: visible
-          ? "0 0 0 1px rgba(34,211,238,0.15), 0 8px 32px rgba(0,0,0,0.4)"
-          : "0 1px 0 rgba(34,211,238,0.08)",
-        borderRadius: visible ? "8px" : "0px",
+        backdropFilter: "blur(16px)",
+        background: visible ? "rgba(10,14,23,0.95)" : "rgba(10,14,23,0.85)",
+        boxShadow: "0 0 0 1px rgba(34,211,238,0.15), 0 8px 32px rgba(0,0,0,0.4)",
+        borderRadius: "12px",
+        width: "92%",
+        y: 12,
       }}
       transition={{ type: "spring", stiffness: 220, damping: 50 }}
       style={{
         position: "relative",
         zIndex: 50,
-        margin: visible ? "8px auto 0" : "0 auto",
-        width: visible ? "calc(100% - 2rem)" : "100%",
+        margin: "0 auto",
         display: "none",
         flexDirection: "column",
         alignItems: "center",
@@ -258,9 +270,25 @@ export const MobileNavToggle = ({ isOpen, onClick }) => {
   );
 };
 
-export const NavbarLogo = ({ username, connected }) => {
+export const NavbarLogo = ({ username, connected, onClick }) => {
   return (
-    <div style={{ position: "relative", zIndex: 20, display: "flex", alignItems: "center", gap: "10px", userSelect: "none" }}>
+    <div
+      onClick={(e) => {
+        if (onClick) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      style={{
+        position: "relative",
+        zIndex: 20,
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        userSelect: "none",
+        cursor: onClick ? "pointer" : "default",
+      }}
+    >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="12" cy="12" r="3" fill="var(--violet)" style={{ filter: "drop-shadow(0 0 4px var(--violet))" }} />
         <circle cx="12" cy="12" r="7" stroke="var(--violet)" strokeWidth="1" strokeOpacity="0.5" fill="none" />
@@ -312,5 +340,175 @@ export const NavbarButton = ({ as: Tag = "button", children, variant = "primary"
     >
       {children}
     </Tag>
+  );
+};
+
+// ── Interactive Operator Control Panel Overlay Dropdown ────────────────────────
+export const TransceiverDashboard = ({
+  open,
+  frequency,
+  onFrequencyChange,
+  pingActive,
+  onTriggerPing,
+  pingLog,
+  onlineCount,
+  signal,
+  connected,
+}) => {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 22 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: "5%",
+            right: "5%",
+            margin: "0 auto",
+            maxWidth: "1400px",
+            background: "rgba(10, 14, 23, 0.96)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid rgba(34, 211, 238, 0.2)",
+            borderRadius: "16px",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.05)",
+            padding: "24px",
+            zIndex: 40,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "24px",
+          }}
+        >
+          {/* Column 1: Tuning dials & lock status */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid var(--border-soft)", paddingBottom: "10px" }}>
+              <IconRadio size={18} style={{ color: "var(--teal)" }} />
+              <span className="field-label" style={{ color: "var(--teal)", fontSize: "11px", letterSpacing: "0.15em", fontWeight: 700 }}>
+                TRANSCEIVER FREQUENCY TUNER
+              </span>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-mono)", fontSize: "12px" }}>
+                <span style={{ color: "var(--text-faint)" }}>BANDWIDTH FREQ:</span>
+                <span style={{ color: "var(--teal)", fontWeight: "bold", textShadow: "var(--glow-teal)" }}>
+                  {frequency.toFixed(3)} MHz
+                </span>
+              </div>
+              <input
+                type="range"
+                min="140.000"
+                max="150.000"
+                step="0.025"
+                value={frequency}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  onFrequencyChange(val);
+                  if (audioManager && audioManager.playKeystroke) {
+                    audioManager.playKeystroke();
+                  }
+                }}
+                style={{
+                  width: "100%",
+                  accentColor: "var(--teal)",
+                  background: "var(--bg-raised)",
+                  height: "6px",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              />
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>
+                <span>140.000 MHz (VHF)</span>
+                <span>150.000 MHz</span>
+              </div>
+            </div>
+
+            {/* Signal lock diagnostic meter */}
+            <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-soft)", borderRadius: "8px", padding: "12px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                <span style={{ fontSize: "10px", fontFamily: "var(--font-mono)", color: "var(--text-dim)" }}>SIGNAL LINK STATE</span>
+                <span style={{
+                  fontSize: "10px", fontFamily: "var(--font-mono)", fontWeight: "bold",
+                  color: signal === "strong" ? "var(--teal)" : signal === "weak" ? "var(--amber)" : "var(--red)"
+                }}>
+                  {signal === "strong" ? "SIGNAL LOCK" : signal === "weak" ? "DEGRADED" : "UNREACHABLE"}
+                </span>
+              </div>
+              <div style={{ height: "4px", background: "rgba(255,255,255,0.05)", borderRadius: "2px", overflow: "hidden" }}>
+                <motion.div
+                  animate={{
+                    width: signal === "strong" ? "100%" : signal === "weak" ? "35%" : "0%",
+                    background: signal === "strong" ? "var(--teal)" : signal === "weak" ? "var(--amber)" : "var(--red)"
+                  }}
+                  style={{ height: "100%" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Column 2: Diagnostic transceiver pings */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid var(--border-soft)", paddingBottom: "10px" }}>
+              <IconActivity size={18} style={{ color: "var(--violet)" }} />
+              <span className="field-label" style={{ color: "var(--violet)", fontSize: "11px", letterSpacing: "0.15em", fontWeight: 700 }}>
+                SONAR DIAGNOSTICS & PING TEST
+              </span>
+            </div>
+
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <button
+                onClick={onTriggerPing}
+                disabled={pingActive || !connected}
+                style={{
+                  flex: 1,
+                  background: pingActive ? "rgba(139,92,246,0.1)" : "var(--violet)",
+                  border: pingActive ? "1px solid rgba(139,92,246,0.3)" : "none",
+                  color: pingActive ? "var(--violet)" : "#ffffff",
+                  padding: "10px 16px",
+                  borderRadius: "6px",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                  cursor: connected ? "pointer" : "not-allowed",
+                  letterSpacing: "0.1em",
+                  boxShadow: pingActive ? "none" : "var(--glow-violet)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  outline: "none",
+                }}
+              >
+                <IconActivity size={14} className={pingActive ? "animate-pulse" : ""} />
+                {pingActive ? "DISPATCHING PING..." : "SEND SONAR DIAGNOSTIC"}
+              </button>
+            </div>
+
+            {/* Simulated live terminal readout screen */}
+            <div style={{
+              background: "#030407",
+              border: "1px solid rgba(139,92,246,0.2)",
+              borderRadius: "8px",
+              padding: "10px 14px",
+              height: "90px",
+              overflowY: "auto",
+              fontFamily: "var(--font-mono)",
+              fontSize: "10px",
+              color: "rgba(139,92,246,0.85)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}>
+              {pingLog.map((log, i) => (
+                <div key={i} style={{ lineBreak: "anywhere" }}>{log}</div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

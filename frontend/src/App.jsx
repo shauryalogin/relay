@@ -6,17 +6,8 @@ import NeedsBoard from "./components/NeedsBoard.jsx";
 import NetworkMap from "./components/NetworkMap.jsx";
 import { BroadcastBanner, BroadcastComposer } from "./components/EmergencyBroadcast.jsx";
 import { audioManager } from "./utils/audio.js";
-import {
-  Navbar,
-  NavBody,
-  NavItems,
-  MobileNav,
-  NavbarLogo,
-  NavbarButton,
-  MobileNavHeader,
-  MobileNavToggle,
-  MobileNavMenu,
-} from "./components/ui/resizable-navbar.tsx";
+import { FloatingNav } from "./components/ui/floating-navbar.tsx";
+import { TransceiverDashboard } from "./components/ui/resizable-navbar.tsx";
 import { FloatingDock } from "./components/ui/floating-dock.tsx";
 import {
   IconRadio,
@@ -25,7 +16,6 @@ import {
   IconUsers,
   IconVolume,
   IconVolumeOff,
-  IconAlertTriangle,
   IconChevronRight,
 } from "@tabler/icons-react";
 import "./app.css";
@@ -63,6 +53,32 @@ export default function App() {
   const [uptime, setUptime] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [muted, setMuted] = useState(false);
+
+  // Transceiver control states
+  const [frequency, setFrequency] = useState(144.800);
+  const [operatorPanelOpen, setOperatorPanelOpen] = useState(false);
+  const [pingActive, setPingActive] = useState(false);
+  const [pingLog, setPingLog] = useState([
+    `[${new Date().toLocaleTimeString()}] TRANSCEIVER ACTIVE - SCANNING BAND...`,
+    `[${new Date().toLocaleTimeString()}] LOCK ESTABLISHED ON 144.800 MHz`
+  ]);
+
+  const triggerDiagnosticsPing = () => {
+    if (pingActive) return;
+    setPingActive(true);
+    if (audioManager && audioManager.playLock) {
+      audioManager.playLock();
+    }
+    setPingLog(prev => [`[${new Date().toLocaleTimeString()}] Sonar ping dispatched...`, ...prev]);
+    setTimeout(() => {
+      setPingLog(prev => [
+        `[${new Date().toLocaleTimeString()}] Sonar response received — OK`,
+        `[${new Date().toLocaleTimeString()}] Health: 99% — Sector LAN Sector 4`,
+        ...prev
+      ]);
+      setPingActive(false);
+    }, 1000);
+  };
 
   useEffect(() => {
     const uptimeTimer = setInterval(() => setUptime((u) => u + 1), 1000);
@@ -151,74 +167,56 @@ export default function App() {
       <div className="crt-overlay" />
       <BroadcastBanner broadcasts={broadcasts} dismissedUpTo={dismissedUpTo} onDismiss={setDismissedUpTo} />
 
-      {/* ── Resizable Navbar ── */}
-      <Navbar>
-        {/* Desktop */}
-        <NavBody>
-          <NavbarLogo username={self.username} connected={connected} />
-          <NavItems items={navItems} />
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {/* Telemetry */}
-            <div className="app-header-telemetry field-label mono hide-mobile" style={{ gap: "8px" }}>
-              <div className="telemetry-item">
-                <span className="telemetry-label">UP:</span>
-                <span className="telemetry-val">{formatUptime(uptime)}</span>
-              </div>
-              <div className="telemetry-item">
-                <span className="telemetry-label">LOCAL:</span>
-                <span className="telemetry-val">
-                  {currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
-                </span>
-              </div>
+      {/* ── Floating Navbar ── */}
+      <FloatingNav
+        navItems={navItems}
+        rightSlot={
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 6px" }}>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", fontFamily: "var(--font-mono)", fontSize: "10px" }}>
+              <span
+                style={{ color: "var(--teal)", cursor: "pointer", letterSpacing: "0.08em" }}
+                onClick={() => { audioManager.playKeystroke(); setOperatorPanelOpen((p) => !p); }}
+              >
+                {frequency.toFixed(3)}<span style={{ color: "var(--text-faint)", marginLeft: "2px" }}>MHz</span>
+              </span>
+              <span style={{ color: "var(--text-faint)", letterSpacing: "0.06em" }}>{formatUptime(uptime)}</span>
             </div>
-            {/* Signal */}
             <SignalIndicator signal={signal} />
-            {/* Self status dot */}
-            <div className="app-self mono" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span className={`status-dot ${connected ? "status-online" : signal === "weak" ? "status-reconnecting" : "status-offline"}`} />
-              <span className="hide-mobile" style={{ fontSize: "11px", color: "var(--text-dim)", letterSpacing: "0.06em" }}>{self.username}</span>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}
+              onClick={() => { audioManager.playKeystroke(); setOperatorPanelOpen((p) => !p); }}
+            >
+              <span
+                style={{
+                  width: "7px", height: "7px", borderRadius: "50%",
+                  background: connected ? "var(--teal)" : signal === "weak" ? "var(--amber)" : "var(--red)",
+                  boxShadow: connected ? "0 0 6px var(--teal)" : "none",
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: "10px", fontFamily: "var(--font-mono)", color: "var(--text-dim)", letterSpacing: "0.08em" }}>
+                {self.username}
+              </span>
             </div>
           </div>
-        </NavBody>
+        }
+      />
 
-        {/* Mobile */}
-        <MobileNav>
-          <MobileNavHeader>
-            <NavbarLogo username={self.username} connected={connected} />
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <SignalIndicator signal={signal} />
-              <MobileNavToggle isOpen={mobileMenuOpen} onClick={() => setMobileMenuOpen((v) => !v)} />
-            </div>
-          </MobileNavHeader>
-          <MobileNavMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
-            {navItems.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.link}
-                onClick={(e) => { item.onClick(e); setMobileMenuOpen(false); }}
-                style={{
-                  color: item.active ? "var(--teal)" : "var(--text-dim)",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "13px",
-                  letterSpacing: "0.12em",
-                  fontWeight: item.active ? "bold" : "normal",
-                  display: "block",
-                  padding: "8px 0",
-                  borderBottom: "1px solid var(--border-soft)",
-                  width: "100%",
-                }}
-              >
-                {item.name}
-              </a>
-            ))}
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", paddingTop: "8px" }}>
-              <NavbarButton as="button" variant="secondary" onClick={toggleMute} style={{ width: "100%", justifyContent: "center" }}>
-                {muted ? <><IconVolumeOff size={14} /> SPKR: OFF</> : <><IconVolume size={14} /> SPKR: ON</>}
-              </NavbarButton>
-            </div>
-          </MobileNavMenu>
-        </MobileNav>
-      </Navbar>
+      {/* Transceiver control dashboard (opened from navbar) */}
+      <TransceiverDashboard
+        open={operatorPanelOpen}
+        frequency={frequency}
+        onFrequencyChange={(val) => {
+          setFrequency(val);
+          if (audioManager && audioManager.playTuneSweep) audioManager.playTuneSweep();
+        }}
+        pingActive={pingActive}
+        onTriggerPing={triggerDiagnosticsPing}
+        pingLog={pingLog}
+        onlineCount={onlineCount}
+        signal={signal}
+        connected={connected}
+      />
 
       {/* ── Floating left dock (desktop) + FAB (mobile) ── */}
       <FloatingDock items={dockItems} />
